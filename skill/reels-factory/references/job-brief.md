@@ -22,7 +22,8 @@ If the user says “choose it yourself”, propose a treatment based on the prof
 - frame treatment and subject focus path;
 - captions, overlays, B-roll, transitions, audio cleanup, music and ducking;
 - CTA, deliverables, must-keep details, forbidden edits;
-- provider and paid-generation approval status, if any.
+- Codex-first media routing: source/local reuse, local Codex construction, built-in Codex generation, and whether an external provider is genuinely unavoidable;
+- what leaves the computer, expected additional cost, provider, and paid-generation approval status, if any.
 
 ## BRIEF.md template
 
@@ -55,7 +56,11 @@ CTA:
 Результаты на выходе:
 Обязательно сохранить:
 Нельзя делать:
-Облачные плагины / расходы:
+Медиаплан — исходник / локальные материалы:
+Медиаплан — Codex делает локально:
+Медиаплан — Codex генерирует встроенными возможностями:
+Внешний платный провайдер / обоснование:
+Что покинет компьютер / дополнительные расходы:
 ```
 
 End with: `Подтверди карточку или внеси правки. До подтверждения монтаж, генерацию, очистку и рендер не запускаю.`

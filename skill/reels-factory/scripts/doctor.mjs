@@ -34,6 +34,8 @@ const checks = {
   profile: { ready: false, version: "" },
 };
 
+let installedFactoryRelease = "";
+
 const installationPath = path.join(projectRoot, "INSTALLATION.json");
 if (fs.existsSync(installationPath)) {
   try {
@@ -42,6 +44,7 @@ if (fs.existsSync(installationPath)) {
       ready: installation.status === "ready" && Number(installation.factoryVersion) >= 3,
       version: String(installation.factoryVersion ?? installation.schemaVersion ?? ""),
     };
+    installedFactoryRelease = String(installation.factoryRelease ?? "");
   } catch (error) {
     checks.installation = { ready: false, version: "invalid: " + error.message };
   }
@@ -86,6 +89,7 @@ const ready = required.every((name) => checks[name].ready);
 const report = {
   schemaVersion: 3,
   factoryVersion: 3,
+  factoryRelease: checks.project.version || installedFactoryRelease || "3.1.0",
   status: ready ? "ready" : "needs_attention",
   checkedAt: new Date().toISOString(),
   platform: process.platform,
@@ -94,7 +98,8 @@ const report = {
   checks,
   providers: {
     local: "ready",
-    fal: process.env.FAL_KEY ? "configured" : "not configured",
+    codexImagegen: "verify in the current Codex session",
+    fal: process.env.FAL_KEY ? "configured but approval still required" : "not configured (last resort)",
   },
 };
 

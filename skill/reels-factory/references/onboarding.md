@@ -9,7 +9,7 @@ Ask only for missing values. Keep the first-run experience to six grouped questi
 3. **Identity:** accent/background/text colors, installed font, logo path, eyebrow label, and author label.
 4. **Captions and framing:** language, caption style (`karaoke`, `boxed`, `minimal`, `kinetic`), emoji/highlight policy, caption position, video fit, blurred backdrop permission, and default subject position.
 5. **Sound:** voice cleanup (`off`, `light`, `voice`), loudness target, music mood and level, automatic music ducking, and sound-effect preference.
-6. **Finish:** common CTA or no default CTA, deliverables, project folder, privacy constraints, and whether optional paid providers may ever be proposed.
+6. **Finish:** common CTA or no default CTA, deliverables, project folder, privacy constraints, and external-provider policy: `never` or `ask only when Codex-first cannot deliver`.
 
 Do not ask the user to supply API keys during onboarding. Provider configuration is a separate opt-in action.
 
@@ -30,7 +30,7 @@ Do not ask the user to supply API keys during onboarding. Provider configuration
 CTA:
 Файлы на выходе:
 Рабочая папка:
-Облачные плагины:
+Codex-first / внешние провайдеры:
 Ограничения:
 ```
 

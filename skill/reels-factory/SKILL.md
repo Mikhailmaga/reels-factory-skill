@@ -1,13 +1,13 @@
 ---
 name: reels-factory
-description: Build branded vertical Reels from local footage with a one-time personal profile, a short pre-upload intake, transcript-and-visual analysis, approved edit plan, dynamic reframing, captions, audio cleanup, optional B-roll, proof renders, and QC on Windows or macOS. Use for reusable Reel production or a finished short-form video; do not use for automatic publishing or unrelated long-form editing.
+description: Build branded vertical Reels from local footage with a one-time personal profile, a short pre-upload intake, transcript-and-visual analysis, approved edit plan, Codex-first media creation, dynamic reframing, captions, audio cleanup, optional B-roll, proof renders, and QC on Windows or macOS. Use for reusable Reel production or a finished short-form video; do not use for automatic publishing or unrelated long-form editing.
 metadata:
-  short-description: Agentic local Reel production with approval gates
+  short-description: Codex-first local Reel production with approval gates
 ---
 
-# Reels Factory 3
+# Reels Factory 3.1
 
-Produce a finished vertical MP4 without guessing the user's brand or spending money before approval. The local engine is the default; cloud providers are optional adapters.
+Produce a finished vertical MP4 without guessing the user's brand or spending money before approval. Use local tools and built-in Codex capabilities first. External paid providers are a last-resort adapter, never an automatic fallback.
 
 ## State
 
@@ -17,7 +17,7 @@ Never assume a name, brand, offer, CTA, colors, logo, or source path. Never reus
 
 ## Runtime check and commands
 
-The installer must create `<project-root>/INSTALLATION.json` with `status: ready` and `factoryVersion: 3`. At the beginning of a setup, production, or diagnostic request, run:
+The installer must create `<project-root>/INSTALLATION.json` with `status: ready`, `factoryVersion: 3`, and `factoryRelease: 3.1.0`. At the beginning of a setup, production, or diagnostic request, run:
 
 ```text
 node scripts/doctor.mjs --project "/absolute/path/ReelsFactory"
@@ -72,10 +72,12 @@ When the user approves, set `approval_status: approved` and add the timestamp. A
 
 1. Build the approved cut with `scripts/build-cut.mjs` when cuts are needed.
 2. Derive text only from the approved copy, verified transcript, and visible source. Do not invent claims, names, results, links, offers, or CTA destinations.
-3. Use optional cloud providers only under [references/providers.md](references/providers.md). Never expose or store keys in the repository, profile, brief, command output, or logs.
-4. Run `scripts/run-reel.mjs proof` with the approved treatment. Use focus keyframes for subject placement; do not introduce circular crops unless the approved card explicitly requests one.
-5. Inspect every proof frame for the subject, crop, text fit, captions, logo, contrast, B-roll, CTA, and platform-safe zones. Fix defects without changing the approved direction.
-6. Run `scripts/run-reel.mjs final`, then inspect the machine QC report and all final QC frames.
+3. Read [references/codex-first.md](references/codex-first.md) and prepare every required visual through its ordered capability ladder. Reuse footage and local assets first; create local Remotion/FFmpeg graphics next; use built-in Codex image generation only when it materially improves the approved plan and is actually available.
+4. Register every created or imported media asset with `tools/register-media.mjs`. Keep the local file and its provenance sidecar in the current job folder.
+5. If the approved result genuinely requires new moving footage that local animation and Codex-created stills cannot provide, follow [references/providers.md](references/providers.md). Never jump to a paid provider merely because built-in image generation is unavailable. Never expose or store keys in the repository, profile, brief, command output, or logs.
+6. Run `scripts/run-reel.mjs proof` with the approved treatment. Use focus keyframes for subject placement; do not introduce circular crops unless the approved card explicitly requests one.
+7. Inspect every proof frame for the subject, crop, text fit, captions, logo, contrast, B-roll, CTA, and platform-safe zones. Fix defects without changing the approved direction.
+8. Run `scripts/run-reel.mjs final`, then inspect the machine QC report and all final QC frames.
 
 Read [references/qc.md](references/qc.md) before accepting a final result.
 
@@ -96,6 +98,8 @@ Useful proof options include `--captions`, `--music`, `--logo`, `--headline`, `-
 ## Boundaries
 
 - Work locally by default. Never upload, publish, post, message, schedule, or replace a cloud file without a separate explicit request.
+- Treat built-in Codex image generation as an optional Codex capability, not as free or unlimited. It may count against the user's Codex usage and may be unavailable for the current plan or workspace. If unavailable, keep working with local graphics and source media.
+- Do not use an OpenAI API key as a silent substitute for built-in Codex image generation. API usage is a separate paid external action and needs the same disclosure and explicit approval as any other provider.
 - Never start paid generation from a vague request such as “сделай красиво”. Present the provider, model, input, and expected cost when available, then obtain explicit approval for that generation.
 - Preserve source footage. Write only inside the chosen project/job folder and approved output paths.
 - Proofread captions, especially names, brands, numbers, and foreign terms.

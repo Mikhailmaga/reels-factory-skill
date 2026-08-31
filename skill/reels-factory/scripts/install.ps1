@@ -100,7 +100,7 @@ function Install-FfmpegFallback {
   }
 }
 
-Write-Host "=== Reels Factory 3.0: полная установка для Windows ==="
+Write-Host "=== Reels Factory 3.1: полная установка для Windows ==="
 
 if ((Get-NodeMajor) -lt 20) {
   if (Test-CommandAvailable "winget") { Install-WithWinget "OpenJS.NodeJS.22" } else { Install-NodeFallback }

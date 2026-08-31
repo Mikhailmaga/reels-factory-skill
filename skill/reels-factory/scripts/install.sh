@@ -34,7 +34,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "=== Reels Factory 3.0: полная установка для macOS ==="
+echo "=== Reels Factory 3.1: полная установка для macOS ==="
 
 if ! command -v brew >/dev/null 2>&1; then
   echo "Устанавливаю Homebrew официальным установщиком…"

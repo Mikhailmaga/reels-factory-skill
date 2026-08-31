@@ -1,8 +1,8 @@
 interface:
-  display_name: "Reels Factory 3"
-  short_description: "Agentic Reel production and quality control"
+  display_name: "Reels Factory 3.1"
+  short_description: "Codex-first Reel production and quality control"
   brand_color: "#7C3AED"
-  default_prompt: "Use $reels-factory to check the local factory, configure my profile, analyze footage, approve a production card, and create a finished vertical Reel with cover, captions, and QC."
+  default_prompt: "Use $reels-factory to check the local factory, configure my profile, analyze footage, approve a production card, and create a finished vertical Reel with cover, captions, and QC. Use local and built-in Codex capabilities first; offer an external paid provider only as a last resort."
 
 policy:
   allow_implicit_invocation: true

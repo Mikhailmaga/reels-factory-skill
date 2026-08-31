@@ -1,7 +1,7 @@
 {
   "name": "reels-factory-studio",
-  "version": "3.0.0",
-  "description": "Локальная агентная фабрика вертикальных Reels с анализом, динамическим кадрированием и QC",
+  "version": "3.1.0",
+  "description": "Codex-first фабрика вертикальных Reels с локальным монтажом, динамическим кадрированием и QC",
   "repository": {},
   "license": "MIT",
   "private": true,
@@ -45,6 +45,7 @@
     "captions:generate": "node tools/transcribe-reel.mjs",
     "runtime:ensure": "node tools/ensure-whisper.mjs",
     "qc": "node tools/qc-report.mjs",
+    "media:register": "node tools/register-media.mjs",
     "provider:fal": "node tools/generate-fal-media.mjs"
   },
   "sideEffects": [

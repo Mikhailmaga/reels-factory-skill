@@ -84,6 +84,7 @@ const reportPath = path.join(projectRoot, "INSTALLATION.json");
 writeJson(reportPath, {
   schemaVersion: 3,
   factoryVersion: 3,
+  factoryRelease: "3.1.0",
   status: "ready",
   installedAt: new Date().toISOString(),
   platform: process.platform,
@@ -98,4 +99,4 @@ console.log(`PROFILE_PATH=${path.join(projectRoot, "PROFILE.md")}`);
 console.log(`INSTALLATION_REPORT=${reportPath}`);
 console.log("Проверяю фабрику целиком…");
 run(nodeCommand, [path.join(scriptDirectory, "doctor.mjs"), "--project", projectRoot]);
-console.log("Полный видеокомплект Reels Factory 3 установлен. Осталось создать или проверить личный профиль.");
+console.log("Полный видеокомплект Reels Factory 3.1 установлен. Осталось создать или проверить личный профиль.");

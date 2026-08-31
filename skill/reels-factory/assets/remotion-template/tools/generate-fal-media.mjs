@@ -29,6 +29,7 @@ if (!/^fal-ai\/[A-Za-z0-9._/-]+$/.test(model)) {
 }
 const inputPath = path.resolve(readOption("input", true));
 const outputPath = path.resolve(readOption("output", true));
+const purpose = readOption("purpose") || "approved external generation";
 if (!fs.existsSync(inputPath)) throw new Error(`Input JSON не найден: ${inputPath}`);
 const inputText = fs.readFileSync(inputPath, "utf8");
 const input = JSON.parse(inputText);
@@ -53,10 +54,6 @@ const mediaUrl =
 if (!mediaUrl || !/^https:\/\//i.test(mediaUrl)) {
   throw new Error("Провайдер не вернул поддерживаемую HTTPS-ссылку на медиа.");
 }
-const publicSourceUrl = new URL(mediaUrl);
-publicSourceUrl.search = "";
-publicSourceUrl.hash = "";
-
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 const temporaryPath = outputPath + ".partial";
 try {
@@ -73,13 +70,15 @@ try {
 
 const provenance = {
   schemaVersion: 1,
+  origin: "external-provider",
   provider: "fal.ai",
   model,
   requestId: result.requestId ?? result.request_id ?? null,
   createdAt: new Date().toISOString(),
+  purpose,
+  mediaFile: path.basename(outputPath),
+  mediaSha256: crypto.createHash("sha256").update(fs.readFileSync(outputPath)).digest("hex"),
   inputSha256: crypto.createHash("sha256").update(inputText).digest("hex"),
-  sourceUrl: publicSourceUrl.toString(),
-  output: outputPath,
 };
 fs.writeFileSync(
   outputPath + ".provenance.json",
