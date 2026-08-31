@@ -1,94 +1,103 @@
 ---
 name: reels-factory
-description: Configure a personal brand profile and turn local footage into a finished vertical Reel through a mandatory brief, explicit approval, transcription, edit planning, proof frames, rendering, and QC on Windows or macOS. Use when the user wants a reusable personal Reel workflow or asks to produce a Reel from supplied footage. Do not use for automatic publishing or unrelated long-form editing.
+description: Build branded vertical Reels from local footage with a one-time personal profile, a short pre-upload intake, transcript-and-visual analysis, approved edit plan, dynamic reframing, captions, audio cleanup, optional B-roll, proof renders, and QC on Windows or macOS. Use for reusable Reel production or a finished short-form video; do not use for automatic publishing or unrelated long-form editing.
+metadata:
+  short-description: Agentic local Reel production with approval gates
 ---
 
-# Reels Factory
+# Reels Factory 3
 
-Create a finished local vertical MP4 while preventing expensive work before the user approves the direction. Keep each person's branding and files local.
+Produce a finished vertical MP4 without guessing the user's brand or spending money before approval. The local engine is the default; cloud providers are optional adapters.
 
-## State and project
+## State
 
-The default working project is `Documents/ReelsFactory` inside the current user's home directory. A user may choose another absolute folder during onboarding. The approved personal settings live in `PROFILE.md` at that project root; each job lives under `out/jobs/<job-id>`.
+The default project is `Documents/ReelsFactory` inside the current user's home directory. The approved profile is `<project-root>/PROFILE.md`. Jobs live under `<project-root>/out/jobs/<job-id>`.
 
-Never assume another person's name, colors, logo, offer, CTA, or paths. Do not reuse values from examples or prior users.
+Never assume a name, brand, offer, CTA, colors, logo, or source path. Never reuse another person's profile or assets.
 
-## Installed runtime
+## Runtime check and commands
 
-The distributed installer must create `<project-root>/INSTALLATION.json` with `status: ready`. It installs Node.js, FFmpeg/FFprobe, the Remotion project, its browser engine, and local Whisper before the skill is used.
+The installer must create `<project-root>/INSTALLATION.json` with `status: ready` and `factoryVersion: 3`. At the beginning of a setup, production, or diagnostic request, run:
 
-If that report is missing or not ready, explain that the local video set is incomplete and run the matching package installer:
+```text
+node scripts/doctor.mjs --project "/absolute/path/ReelsFactory"
+```
+
+If the report is missing or the doctor is not ready, tell the user and run the matching installer only after announcing the installation action:
 
 - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install.ps1`
 - macOS: `bash scripts/install.sh`
 
-Tell the user before an installer action. The operating system may request administrator permission, the Mac password, or Command Line Tools confirmation. Stop on installation failure; do not pretend the factory is ready.
+Recognize these natural-language operations:
 
-## First run
+- `настрой фабрику` — create the first profile;
+- `покажи профиль` — display it without editing;
+- `измени профиль` — show a delta and obtain approval before saving;
+- `проверь установку` — run the doctor and explain failures;
+- `сделай Reels` — start a new job;
+- `продолжи <job-id>` — resume from its recorded status.
 
-If `PROFILE.md` does not exist:
+Do not delete or reset a profile. If the user explicitly requests a reset, preserve a timestamped backup and obtain confirmation immediately before replacing it.
 
-1. Read [references/onboarding.md](references/onboarding.md).
-2. Ask one compact numbered questionnaire containing only missing profile fields.
-3. Present the personal profile card and stop for explicit approval.
-4. After approval, write the approved settings to `<project-root>/PROFILE.md`. Preserve supplied names and copy verbatim.
+## One-time profile
 
-On later runs, read `PROFILE.md` and ask only about job-specific differences. If the user asks to reconfigure the factory, update the profile only after showing the changed profile card and obtaining approval.
+If `PROFILE.md` is absent, read [references/onboarding.md](references/onboarding.md). Ask one compact grouped questionnaire, show the completed profile card, and stop for approval. Save it only after approval.
+
+On later jobs, use the profile as defaults. Ask about colors, captions, logo, voice, or CTA again only when the user requests a change or the job clearly needs an override.
 
 ## Every Reel
 
-### Phase A: brief and approval
+### 1. Intake before analysis
 
-1. Resolve the exact local footage path. If it is missing or unreadable, ask for the file.
-2. Run `node scripts/inspect-source.mjs` for metadata and representative frames. This is allowed before approval. Do not run full transcription, asset generation, editing, or rendering yet.
-3. Read [references/job-brief.md](references/job-brief.md). Combine the source facts, `PROFILE.md`, and the current request. Ask one compact set of questions only for missing or overridden values.
-4. Create `out/jobs/<job-id>/BRIEF.md` with `approval_status: draft`, show the production card, and stop.
-5. When the user clearly approves the current card, change it to `approval_status: approved` and add the approval timestamp. Any material change to topic, platform, duration, creative direction, or CTA resets the status to `draft` until the changed card is approved.
+Read [references/job-brief.md](references/job-brief.md). Before inspecting or transcribing footage, ask one short message containing only missing job fields and ask the user to attach or identify the local video in the same reply. If the user already supplied both answers and a readable file, continue without repeating questions.
 
-### Phase B: production
+### 2. Local preflight
 
-1. Read the approved brief and source. If cuts are needed, create a segment JSON file and use `node scripts/build-cut.mjs`. Transcribe the final selected footage, not discarded material.
-2. Derive overlays only from the approved copy, verified transcript, and visible source. Do not invent names, claims, offers, results, links, or CTA destinations.
-3. Run `node scripts/run-reel.mjs proof` with the profile and approved parameters. It prepares media, captions, props, and three proof frames without a full render.
-4. Inspect every proof frame. Check subject position, cropping, logo, contrast, text overflow, captions, CTA, and platform-safe zones. Fix defects without changing the approved direction.
-5. Run `node scripts/run-reel.mjs final`. It renders the MP4, performs a full decode check, and extracts final QC frames.
-6. Inspect the final QC frames and return the local MP4 path, duration, dimensions, and a concise production summary.
-
-## Command patterns
-
-Use absolute paths. The same Node commands work in PowerShell, Terminal, and Codex shell.
-
-Inspect source before the brief:
+After footage is supplied, local metadata, frame extraction, scene detection, loudness measurement, silence detection, and local transcription are allowed. They do not alter the source or incur cloud costs.
 
 ```text
 node scripts/inspect-source.mjs --video "/absolute/path/source.mp4" --output "/absolute/path/job/inspection"
+node "/absolute/path/ReelsFactory/tools/transcribe-reel.mjs" "/absolute/path/source.mp4" "/absolute/path/job/captions.json"
 ```
 
-Build an approved cut:
+Read [references/analysis-production.md](references/analysis-production.md). Inspect all representative frames and the verified transcript. Build a factual edit plan with selected timestamps, rejected material, framing keyframes, caption treatment, audio treatment, local B-roll, and up to three hook variants when useful.
+
+### 3. Production card and approval
+
+Create `out/jobs/<job-id>/BRIEF.md` with `approval_status: draft`. Show the production card, including the proposed cut and variants, then stop. No cutting, cleanup, generated assets, proof render, or final render is allowed before approval.
+
+When the user approves, set `approval_status: approved` and add the timestamp. A material change to objective, source, selected moments, platform, duration, creative direction, paid provider, or CTA resets it to `draft` until the changed card is approved.
+
+### 4. Production
+
+1. Build the approved cut with `scripts/build-cut.mjs` when cuts are needed.
+2. Derive text only from the approved copy, verified transcript, and visible source. Do not invent claims, names, results, links, offers, or CTA destinations.
+3. Use optional cloud providers only under [references/providers.md](references/providers.md). Never expose or store keys in the repository, profile, brief, command output, or logs.
+4. Run `scripts/run-reel.mjs proof` with the approved treatment. Use focus keyframes for subject placement; do not introduce circular crops unless the approved card explicitly requests one.
+5. Inspect every proof frame for the subject, crop, text fit, captions, logo, contrast, B-roll, CTA, and platform-safe zones. Fix defects without changing the approved direction.
+6. Run `scripts/run-reel.mjs final`, then inspect the machine QC report and all final QC frames.
+
+Read [references/qc.md](references/qc.md) before accepting a final result.
+
+## Core commands
+
+Use absolute paths. JSON options accept either an absolute JSON path or inline JSON.
 
 ```text
 node scripts/build-cut.mjs --video "/absolute/path/source.mp4" --segments "/absolute/path/segments.json" --output "/absolute/path/selected.mp4"
+
+node scripts/run-reel.mjs proof --project "/absolute/path/ReelsFactory" --job "job-001" --brief "/absolute/path/ReelsFactory/out/jobs/job-001/BRIEF.md" --video "/absolute/path/selected.mp4" --focus-keyframes "/absolute/path/focus.json" --broll "/absolute/path/broll.json" --audio-cleanup voice
+
+node scripts/run-reel.mjs final --project "/absolute/path/ReelsFactory" --job "job-001" --brief "/absolute/path/ReelsFactory/out/jobs/job-001/BRIEF.md"
 ```
 
-Prepare proof frames after approval:
-
-```text
-node scripts/run-reel.mjs proof --project "/absolute/path/ReelsFactory" --job "expert-tip-001" --brief "/absolute/path/ReelsFactory/out/jobs/expert-tip-001/BRIEF.md" --video "/absolute/path/source.mp4"
-```
-
-Render only after proof inspection:
-
-```text
-node scripts/run-reel.mjs final --project "/absolute/path/ReelsFactory" --job "expert-tip-001" --brief "/absolute/path/ReelsFactory/out/jobs/expert-tip-001/BRIEF.md"
-```
-
-Optional proof flags include `--captions`, `--music`, `--logo`, `--headline`, `--cta`, `--accent-color`, `--caption-style`, `--video-fit`, `--blurred-backdrop`, and `--skip-transcription`.
+Useful proof options include `--captions`, `--music`, `--logo`, `--headline`, `--hook-style`, `--cta`, `--accent-color`, `--caption-style`, `--caption-position`, `--cover-at`, `--video-fit`, `--blurred-backdrop`, `--focus-keyframes`, `--broll`, `--audio-cleanup`, `--music-duck`, and `--skip-transcription`.
 
 ## Boundaries
 
-- Work locally by default. Never upload, publish, post, message, or replace a cloud file without a separate explicit request.
-- Never skip the approved brief or proof-frame inspection, including when the request says only “сделай красиво”. That request allows proposing a treatment, not starting production.
+- Work locally by default. Never upload, publish, post, message, schedule, or replace a cloud file without a separate explicit request.
+- Never start paid generation from a vague request such as “сделай красиво”. Present the provider, model, input, and expected cost when available, then obtain explicit approval for that generation.
+- Preserve source footage. Write only inside the chosen project/job folder and approved output paths.
 - Proofread captions, especially names, brands, numbers, and foreign terms.
-- Keep source footage and personal brand assets out of the skill folder. Store them only in the user's chosen project or job folder.
-- Do not expose paths, profile details, or footage belonging to another user.
-- Support Windows 10/11 x64 or ARM64 and current supported macOS on Apple Silicon or Intel. Do not claim a platform was physically tested when it was only syntax-checked.
+- Support Windows 10/11 x64 or ARM64 and macOS 15 or newer on Apple Silicon or supported Intel hardware. Do not claim physical testing that did not occur.
+- If a provider, model, or platform behavior may have changed, verify its current official documentation before using it.

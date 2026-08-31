@@ -81,6 +81,39 @@ export const run = (command, args, settings = {}) => {
   return capture ? (result.stdout ?? "").trim() : "";
 };
 
+export const runDetailed = (command, args, settings = {}) => {
+  let executable = command;
+  let executableArgs = args;
+  if (isWindows && ["npm.cmd", "npx.cmd"].includes(command.toLowerCase())) {
+    const cliName = command.toLowerCase() === "npm.cmd" ? "npm-cli.js" : "npx-cli.js";
+    const cliPath = path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", cliName);
+    if (!fs.existsSync(cliPath)) {
+      throw new Error(`Не найден системный ${cliName}: ${cliPath}`);
+    }
+    executable = process.execPath;
+    executableArgs = [cliPath, ...args];
+  }
+
+  const result = spawnSync(executable, executableArgs, {
+    cwd: settings.cwd,
+    encoding: "utf8",
+    env: settings.env ?? process.env,
+    shell: false,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.error) throw result.error;
+  if (result.status !== 0 && settings.allowFailure !== true) {
+    throw new Error(
+      `Команда завершилась с кодом ${result.status}: ${command} ${args.join(" ")}\n${result.stdout ?? ""}${result.stderr ?? ""}`.trimEnd(),
+    );
+  }
+  return {
+    status: result.status ?? -1,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? "",
+  };
+};
+
 export const ensureDirectory = (directory) => {
   fs.mkdirSync(directory, { recursive: true });
 };
@@ -96,6 +129,19 @@ export const ensureFile = (filePath, label = "Файл") => {
 export const writeJson = (filePath, value) => {
   ensureDirectory(path.dirname(filePath));
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+};
+
+export const readJsonValue = (value, label = "JSON") => {
+  const source = String(value ?? "").trim();
+  if (!source) return null;
+  const body = fs.existsSync(source)
+    ? fs.readFileSync(path.resolve(source), "utf8")
+    : source;
+  try {
+    return JSON.parse(body);
+  } catch (error) {
+    throw new Error(`${label} содержит некорректный JSON: ${error.message}`);
+  }
 };
 
 export const sanitizeJobId = (value) => {

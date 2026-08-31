@@ -6,6 +6,12 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
   exit 1
 fi
 
+MACOS_MAJOR="$(sw_vers -productVersion | cut -d. -f1)"
+if [[ ! "$MACOS_MAJOR" =~ ^[0-9]+$ ]] || (( MACOS_MAJOR < 15 )); then
+  echo "Reels Factory 3 требует macOS 15 или новее. Сейчас: $(sw_vers -productVersion)." >&2
+  exit 1
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 CODEX_ROOT="${CODEX_HOME:-$HOME/.codex}"
@@ -28,7 +34,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "=== Reels Factory 2.0: полная установка для macOS ==="
+echo "=== Reels Factory 3.0: полная установка для macOS ==="
 
 if ! command -v brew >/dev/null 2>&1; then
   echo "Устанавливаю Homebrew официальным установщиком…"
@@ -87,4 +93,4 @@ node "$TARGET/scripts/bootstrap.mjs" --project "$PROJECT_ROOT"
 echo
 echo "Готово. Скилл: $TARGET"
 echo "Рабочая папка: $PROJECT_ROOT"
-echo 'Перезапусти Codex и напиши: Используй $reels-factory и настрой мою личную фабрику Reels.'
+echo 'Перезапусти Codex и напиши: $reels-factory проверь установку и настрой мою фабрику.'

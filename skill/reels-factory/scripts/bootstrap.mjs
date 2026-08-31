@@ -56,9 +56,15 @@ if (projectAlreadyExists) {
 ensureDirectory(path.join(projectRoot, "out", "jobs"));
 
 console.log("Устанавливаю зависимости Remotion…");
-run(npmCommand, projectAlreadyExists ? ["install", "--no-audit", "--no-fund"] : ["ci"], {
-  cwd: projectRoot,
-});
+const npmArgs = projectAlreadyExists
+  ? ["install", "--no-audit", "--no-fund"]
+  : ["ci", "--no-audit", "--no-fund"];
+try {
+  run(npmCommand, npmArgs, { cwd: projectRoot });
+} catch (error) {
+  console.warn("Первая попытка npm завершилась ошибкой. Повторяю один раз…");
+  run(npmCommand, npmArgs, { cwd: projectRoot });
+}
 
 console.log("Скачиваю и проверяю браузерный движок Remotion…");
 run(npxCommand, ["remotion", "browser", "ensure"], { cwd: projectRoot });
@@ -76,7 +82,8 @@ const ffmpegVersion = run("ffmpeg", ["-version"], { capture: true })
   .trim();
 const reportPath = path.join(projectRoot, "INSTALLATION.json");
 writeJson(reportPath, {
-  schemaVersion: 2,
+  schemaVersion: 3,
+  factoryVersion: 3,
   status: "ready",
   installedAt: new Date().toISOString(),
   platform: process.platform,
@@ -89,4 +96,6 @@ writeJson(reportPath, {
 console.log(`PROJECT_ROOT=${projectRoot}`);
 console.log(`PROFILE_PATH=${path.join(projectRoot, "PROFILE.md")}`);
 console.log(`INSTALLATION_REPORT=${reportPath}`);
-console.log("Полный видеокомплект установлен. Осталось создать и утвердить личный профиль.");
+console.log("Проверяю фабрику целиком…");
+run(nodeCommand, [path.join(scriptDirectory, "doctor.mjs"), "--project", projectRoot]);
+console.log("Полный видеокомплект Reels Factory 3 установлен. Осталось создать или проверить личный профиль.");

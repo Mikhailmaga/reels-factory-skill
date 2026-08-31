@@ -25,6 +25,10 @@ const outputRoot = path.resolve(readOption("output", true));
 const captionsValue = readOption("captions");
 const musicValue = readOption("music");
 const logoValue = readOption("logo");
+const audioCleanup = readOption("audio-cleanup") || "off";
+if (!["off", "light", "voice"].includes(audioCleanup)) {
+  throw new Error("--audio-cleanup: допустимы off, light, voice.");
+}
 fs.mkdirSync(outputRoot, { recursive: true });
 
 const videoOutput = path.join(outputRoot, "source.mp4");
@@ -33,9 +37,31 @@ const musicOutput = path.join(outputRoot, "music.mp3");
 const logoOutput = path.join(outputRoot, "logo.png");
 
 console.log("Готовлю видео для Remotion…");
+const probe = spawnSync(
+  "ffprobe",
+  ["-v", "error", "-select_streams", "a:0", "-show_entries", "stream=index", "-of", "csv=p=0", video],
+  { encoding: "utf8", shell: false },
+);
+const hasAudio = probe.status === 0 && Boolean((probe.stdout ?? "").trim());
+const videoArgs = [
+  "-nostdin", "-y", "-i", video,
+  "-c:v", "libx264", "-preset", "medium", "-crf", "19",
+];
+if (hasAudio) {
+  if (audioCleanup === "light") {
+    videoArgs.push("-af", "highpass=f=65,lowpass=f=15500,afftdn=nf=-28,loudnorm=I=-16:TP=-1.5:LRA=11");
+  }
+  if (audioCleanup === "voice") {
+    videoArgs.push("-af", "highpass=f=80,lowpass=f=14000,afftdn=nf=-32,loudnorm=I=-16:TP=-1.5:LRA=11");
+  }
+  videoArgs.push("-c:a", "aac", "-b:a", "192k");
+} else {
+  videoArgs.push("-an");
+}
+videoArgs.push("-movflags", "+faststart", videoOutput);
 run(
   "ffmpeg",
-  ["-nostdin", "-y", "-i", video, "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", videoOutput],
+  videoArgs,
   "FFmpeg не смог подготовить видео.",
 );
 

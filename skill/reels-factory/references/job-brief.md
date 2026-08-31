@@ -1,47 +1,63 @@
-# Reel job brief
+# Reel intake and production card
 
-Use `PROFILE.md` as defaults, not as an excuse to skip job-specific intent. Ask only about missing values or deliberate overrides.
+Use `PROFILE.md` as defaults. Before requesting the video, ask one compact message containing only missing answers from this intake:
 
-## Required job fields
+1. Platform and target duration.
+2. Objective, audience, and the one idea the viewer should remember.
+3. Moments or wording that must remain or be removed.
+4. Use the saved style or apply a job-specific change.
+5. CTA or “without CTA”.
+6. Number of versions and deadline, if relevant.
+7. Attach the video or provide its exact local path.
 
-1. Source footage and any moments that must remain or be removed.
-2. Topic, one main idea, objective, and audience.
-3. Platform, aspect ratio, target duration, and number of versions.
-4. Opening hook and CTA. If absent, propose them after transcription without inventing claims.
-5. Style and pace overrides from the profile.
-6. Captions, picture treatment, B-roll, screenshots, transitions, and music.
-7. Deliverables, deadline, must-keep details, and forbidden edits.
+If the user says “choose it yourself”, propose a treatment based on the profile and source; do not invent factual claims.
+
+## Required production facts after preflight
+
+- exact source and verified duration;
+- transcript path and uncertain words requiring review;
+- selected timestamps and resulting target duration;
+- excluded pauses, repetitions, mistakes, or off-topic material;
+- selected hook and any alternate variants;
+- frame treatment and subject focus path;
+- captions, overlays, B-roll, transitions, audio cleanup, music and ducking;
+- CTA, deliverables, must-keep details, forbidden edits;
+- provider and paid-generation approval status, if any.
 
 ## BRIEF.md template
 
 ```markdown
 ---
-brief_version: 1
+brief_version: 2
 approval_status: draft
 approved_at:
+factory_version: 3
 job_id:
 ---
 
-# ПРОИЗВОДСТВЕННАЯ КАРТОЧКА
+# ПРОИЗВОДСТВЕННАЯ КАРТОЧКА REELS 3
 
-Источник:
-Тема:
-Цель:
-Аудитория:
+Источник / длительность:
 Площадка / формат:
-Длительность / версии:
-Главная мысль / хук:
+Цель / аудитория:
+Главная мысль:
+Целевая длительность / версии:
+Выбранные фрагменты:
+Что исключаем:
+Хук основной / альтернативы:
 Стиль / темп:
 Цвета / шрифты / бренд:
-Монтаж и кадрирование:
-Титры:
-Звук / музыка:
+Кадрирование / движение фокуса:
+Титры / плашки:
+B-roll / переходы:
+Очистка голоса / музыка / ducking / SFX:
 CTA:
 Результаты на выходе:
 Обязательно сохранить:
 Нельзя делать:
+Облачные плагины / расходы:
 ```
 
-End the displayed card with: `Подтверди карточку или внеси правки. До подтверждения монтаж, расшифровку и рендер не начинаю.`
+End with: `Подтверди карточку или внеси правки. До подтверждения монтаж, генерацию, очистку и рендер не запускаю.`
 
-After approval, change only the YAML status and timestamp. Preserve the approved wording. If the content changes later, increment `brief_version`, reset the status to `draft`, and show the delta for approval.
+After approval, change only YAML status and timestamp. If content later changes, increment `brief_version`, reset it to `draft`, show the delta, and wait for approval.

@@ -12,16 +12,18 @@ import {
   useVideoConfig,
 } from "remotion";
 
-type CaptionStyle = "karaoke" | "boxed" | "minimal";
+type CaptionStyle = "karaoke" | "boxed" | "minimal" | "kinetic";
+type CaptionPosition = "bottom" | "center" | "top";
 
 const CaptionPage: React.FC<{
   accentColor: string;
   bottomOffset: number;
   fontFamily: string;
   page: TikTokPage;
+  position: CaptionPosition;
   styleMode: CaptionStyle;
   textColor: string;
-}> = ({ accentColor, bottomOffset, fontFamily, page, styleMode, textColor }) => {
+}> = ({ accentColor, bottomOffset, fontFamily, page, position, styleMode, textColor }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const absoluteTimeMs = page.startMs + (frame / fps) * 1000;
@@ -30,8 +32,14 @@ const CaptionPage: React.FC<{
     <AbsoluteFill
       style={{
         alignItems: "center",
-        justifyContent: "flex-end",
-        padding: `0 84px ${bottomOffset}px`,
+        justifyContent:
+          position === "top" ? "flex-start" : position === "center" ? "center" : "flex-end",
+        padding:
+          position === "top"
+            ? "300px 84px 0"
+            : position === "bottom"
+              ? `0 84px ${bottomOffset}px`
+              : "0 84px",
         pointerEvents: "none",
       }}
     >
@@ -50,7 +58,7 @@ const CaptionPage: React.FC<{
               : "none",
           color: textColor,
           fontFamily,
-          fontSize: styleMode === "minimal" ? 60 : 72,
+          fontSize: styleMode === "minimal" ? 60 : styleMode === "kinetic" ? 86 : 72,
           fontWeight: 900,
           letterSpacing: "-0.04em",
           lineHeight: 1.08,
@@ -76,7 +84,14 @@ const CaptionPage: React.FC<{
                   active && styleMode !== "minimal" ? accentColor : textColor,
                 display: "inline-block",
                 opacity: active || styleMode !== "minimal" ? 1 : 0.82,
-                scale: active && styleMode === "karaoke" ? 1.08 : 1,
+                scale:
+                  active && styleMode === "kinetic"
+                    ? 1.16
+                    : active && styleMode === "karaoke"
+                      ? 1.08
+                      : 1,
+                translate:
+                  active && styleMode === "kinetic" ? "0px -10px" : "0px 0px",
               }}
             >
               {token.text}
@@ -94,6 +109,7 @@ const CaptionSequence: React.FC<{
   durationInFrames: number;
   fontFamily: string;
   page: TikTokPage;
+  position: CaptionPosition;
   styleMode: CaptionStyle;
   textColor: string;
 }> = ({
@@ -102,6 +118,7 @@ const CaptionSequence: React.FC<{
   durationInFrames,
   fontFamily,
   page,
+  position,
   styleMode,
   textColor,
 }) => {
@@ -126,6 +143,7 @@ const CaptionSequence: React.FC<{
         bottomOffset={bottomOffset}
         fontFamily={fontFamily}
         page={page}
+        position={position}
         styleMode={styleMode}
         textColor={textColor}
       />
@@ -138,6 +156,7 @@ export const CaptionLayer: React.FC<{
   bottomOffset: number;
   captions: Caption[];
   fontFamily: string;
+  position: CaptionPosition;
   styleMode: CaptionStyle;
   textColor: string;
 }> = ({
@@ -145,6 +164,7 @@ export const CaptionLayer: React.FC<{
   bottomOffset,
   captions,
   fontFamily,
+  position,
   styleMode,
   textColor,
 }) => {
@@ -188,6 +208,7 @@ export const CaptionLayer: React.FC<{
               durationInFrames={durationInFrames}
               fontFamily={fontFamily}
               page={page}
+              position={position}
               styleMode={styleMode}
               textColor={textColor}
             />

@@ -31,10 +31,34 @@ export const reelsUnderKeySchema = z.object({
   backgroundColor: zColor(),
   textColor: zColor(),
   fontFamily: z.string(),
-  captionStyle: z.enum(["karaoke", "boxed", "minimal"]),
+  hookStyle: z.enum(["card", "minimal", "kinetic"]),
+  captionStyle: z.enum(["karaoke", "boxed", "minimal", "kinetic"]),
   captionBottom: z.number().min(80).max(900),
+  captionPosition: z.enum(["bottom", "center", "top"]),
   videoFit: z.enum(["cover", "contain"]),
   blurredBackdrop: z.boolean().default(false),
+  focusKeyframes: z
+    .array(
+      z.object({
+        at: z.number().min(0),
+        x: z.number().min(0).max(100),
+        y: z.number().min(0).max(100),
+        scale: z.number().min(0.8).max(2.5),
+      }),
+    )
+    .default([]),
+  broll: z
+    .array(
+      z.object({
+        source: z.string(),
+        start: z.number().min(0),
+        end: z.number().min(0),
+        fit: z.enum(["cover", "contain"]),
+        kind: z.enum(["video", "image"]),
+        label: z.string(),
+      }),
+    )
+    .default([]),
   highlights: z
     .array(
       z.object({
@@ -46,6 +70,9 @@ export const reelsUnderKeySchema = z.object({
     .default([]),
   sourceVolume: z.number().min(0).max(1),
   musicVolume: z.number().min(0).max(1),
+  musicDuck: z.boolean(),
+  musicDuckVolume: z.number().min(0).max(1),
+  coverAt: z.number().min(0),
   showCaptions: z.boolean(),
   showProgress: z.boolean(),
   showSafeArea: z.boolean(),
@@ -74,8 +101,9 @@ const HookCard: React.FC<{
   accentColor: string;
   durationInFrames: number;
   headline: string;
+  hookStyle: "card" | "minimal" | "kinetic";
   textColor: string;
-}> = ({ accentColor, durationInFrames, headline, textColor }) => {
+}> = ({ accentColor, durationInFrames, headline, hookStyle, textColor }) => {
   const frame = useCurrentFrame();
 
   return (
@@ -85,17 +113,18 @@ const HookCard: React.FC<{
         position: "absolute",
         left: 80,
         right: 80,
-        top: 280,
-        backgroundColor: "rgba(8,9,14,0.86)",
-        border: `3px solid ${accentColor}`,
-        borderRadius: 34,
+        top: hookStyle === "minimal" ? 250 : 280,
+        backgroundColor:
+          hookStyle === "card" ? "rgba(8,9,14,0.86)" : "rgba(8,9,14,0.34)",
+        border: hookStyle === "card" ? `3px solid ${accentColor}` : "3px solid transparent",
+        borderRadius: hookStyle === "kinetic" ? 0 : 34,
         boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
         color: textColor,
-        fontSize: 84,
+        fontSize: headline.length > 55 ? 58 : headline.length > 32 ? 70 : 84,
         fontWeight: 900,
         letterSpacing: "-0.055em",
         lineHeight: 0.98,
-        padding: "34px 38px 42px",
+        padding: hookStyle === "minimal" ? "18px 20px 24px" : "34px 38px 42px",
         opacity: interpolate(
           frame,
           [
@@ -112,6 +141,17 @@ const HookCard: React.FC<{
           },
         ),
         translate: interpolate(frame, [0, 14], ["0px 48px", "0px 0px"], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        }),
+        scale: interpolate(frame, [0, 14], [hookStyle === "kinetic" ? 0.78 : 0.96, 1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+          output: "perceptual-scale",
+        }),
+        rotate: interpolate(frame, [0, 14], [hookStyle === "kinetic" ? "-3deg" : "0deg", "0deg"], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
           easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -279,6 +319,76 @@ const CtaCard: React.FC<{
   );
 };
 
+const valueAtTime = (
+  keyframes: ReelsUnderKeyProps["focusKeyframes"],
+  time: number,
+  field: "x" | "y" | "scale",
+  fallback: number,
+) => {
+  if (keyframes.length === 0) return fallback;
+  if (keyframes.length === 1) return keyframes[0][field];
+  return interpolate(
+    time,
+    keyframes.map((item) => item.at),
+    keyframes.map((item) => item[field]),
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+};
+
+const BrollItem: React.FC<{
+  durationInFrames: number;
+  item: ReelsUnderKeyProps["broll"][number];
+}> = ({ durationInFrames, item }) => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(
+    frame,
+    [0, Math.min(8, durationInFrames / 3), Math.max(9, durationInFrames - 8), durationInFrames],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const style = {
+    position: "absolute" as const,
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: item.fit,
+    opacity,
+  };
+
+  return item.kind === "image" ? (
+    <Img name={item.label || "B-roll image"} src={resolveMediaSource(item.source)} style={style} />
+  ) : (
+    <Video
+      name={item.label || "B-roll video"}
+      src={resolveMediaSource(item.source)}
+      volume={0}
+      style={style}
+    />
+  );
+};
+
+const BrollLayer: React.FC<{ broll: ReelsUnderKeyProps["broll"] }> = ({ broll }) => {
+  const { fps } = useVideoConfig();
+  return (
+    <AbsoluteFill>
+      {broll.map((item, index) => {
+        const startFrame = Math.max(0, Math.floor(item.start * fps));
+        const durationInFrames = Math.max(1, Math.ceil((item.end - item.start) * fps));
+        return (
+          <Sequence
+            key={`${item.source}-${index}`}
+            from={startFrame}
+            durationInFrames={durationInFrames}
+            name={item.label || `B-roll ${index + 1}`}
+          >
+            <BrollItem durationInFrames={durationInFrames} item={item} />
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
 export const ReelsUnderKey: React.FC<ReelsUnderKeyProps> = ({
   videoSource,
   captionsSource,
@@ -294,13 +404,19 @@ export const ReelsUnderKey: React.FC<ReelsUnderKeyProps> = ({
   backgroundColor,
   textColor,
   fontFamily,
+  hookStyle,
   captionStyle,
   captionBottom,
+  captionPosition,
   videoFit,
   blurredBackdrop,
+  focusKeyframes,
+  broll,
   highlights,
   sourceVolume,
   musicVolume,
+  musicDuck,
+  musicDuckVolume,
   showCaptions,
   showProgress,
   showSafeArea,
@@ -309,10 +425,14 @@ export const ReelsUnderKey: React.FC<ReelsUnderKeyProps> = ({
   const { durationInFrames, fps } = useVideoConfig();
   const captions = useCaptions(showCaptions ? captionsSource : "");
   const hookDuration = Math.min(88, durationInFrames);
-  const ctaDuration = Math.min(90, Math.floor(durationInFrames * 0.32));
+  const ctaDuration = Math.min(75, Math.floor(durationInFrames * 0.18));
   const ctaStart = Math.max(0, durationInFrames - ctaDuration);
   const calloutStart = Math.floor(durationInFrames * 0.48);
   const calloutDuration = Math.min(72, Math.floor(durationInFrames * 0.24));
+  const focusTime = frame / fps;
+  const focusX = valueAtTime(focusKeyframes, focusTime, "x", 50);
+  const focusY = valueAtTime(focusKeyframes, focusTime, "y", 50);
+  const focusScale = valueAtTime(focusKeyframes, focusTime, "scale", 1);
 
   return (
     <AbsoluteFill
@@ -350,8 +470,13 @@ export const ReelsUnderKey: React.FC<ReelsUnderKeyProps> = ({
           inset: 0,
           width: "100%",
           height: "100%",
+          objectPosition: `${focusX}% ${focusY}%`,
+          transformOrigin: `${focusX}% ${focusY}%`,
+          scale: focusScale,
         }}
       />
+
+      {broll.length ? <BrollLayer broll={broll} /> : null}
 
       <AbsoluteFill
         style={{
@@ -423,6 +548,7 @@ export const ReelsUnderKey: React.FC<ReelsUnderKeyProps> = ({
             accentColor={accentColor}
             durationInFrames={hookDuration}
             headline={headline}
+            hookStyle={hookStyle}
             textColor={textColor}
           />
         </Sequence>
@@ -472,14 +598,17 @@ export const ReelsUnderKey: React.FC<ReelsUnderKeyProps> = ({
       })}
 
       {showCaptions && captions ? (
-        <CaptionLayer
-          accentColor={accentColor}
-          bottomOffset={captionBottom}
-          captions={captions}
-          fontFamily={fontFamily}
-          styleMode={captionStyle}
-          textColor={textColor}
-        />
+        <Sequence durationInFrames={cta ? ctaStart : durationInFrames} name="Субтитры">
+          <CaptionLayer
+            accentColor={accentColor}
+            bottomOffset={captionBottom}
+            captions={captions}
+            fontFamily={fontFamily}
+            position={captionPosition}
+            styleMode={captionStyle}
+            textColor={textColor}
+          />
+        </Sequence>
       ) : null}
 
       {cta ? (
@@ -502,17 +631,24 @@ export const ReelsUnderKey: React.FC<ReelsUnderKeyProps> = ({
           name="Фоновая музыка"
           src={resolveMediaSource(musicSource)}
           loop
-          volume={(audioFrame) =>
-            interpolate(
+          volume={(audioFrame) => {
+            const timeMs = (audioFrame / fps) * 1000;
+            const speechActive = Boolean(
+              captions?.some(
+                (caption) => caption.startMs <= timeMs && caption.endMs > timeMs,
+              ),
+            );
+            const target = musicDuck && speechActive ? musicDuckVolume : musicVolume;
+            return interpolate(
               audioFrame,
               [0, fps, durationInFrames - fps, durationInFrames],
-              [0, musicVolume, musicVolume, 0],
+              [0, target, target, 0],
               {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               },
-            )
-          }
+            );
+          }}
         />
       ) : null}
 

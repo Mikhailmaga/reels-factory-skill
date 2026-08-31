@@ -1,18 +1,22 @@
 {
   "name": "reels-factory-studio",
-  "version": "2.0.0",
-  "description": "Локальный персонализируемый конструктор вертикальных Reels",
+  "version": "3.0.0",
+  "description": "Локальная агентная фабрика вертикальных Reels с анализом, динамическим кадрированием и QC",
   "repository": {},
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@fal-ai/client": "1.10.1",
+    "@remotion/bundler": "4.0.519",
     "@remotion/captions": "4.0.519",
     "@remotion/cli": "4.0.519",
     "@remotion/install-whisper-cpp": "4.0.519",
+    "@remotion/layout-utils": "4.0.519",
     "@remotion/media": "4.0.519",
+    "@remotion/renderer": "4.0.519",
     "@remotion/tailwind-v4": "4.0.519",
     "@remotion/zod-types": "4.0.519",
-    "mediabunny": "1.55.4",
+    "mediabunny": "1.55.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.519",
@@ -23,7 +27,7 @@
     "@remotion/eslint-config-flat": "4.0.519",
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
-    "eslint": "^9.39.5",
+    "eslint": "9.39.5",
     "prettier": "3.8.1",
     "typescript": "5.9.3"
   },
@@ -39,7 +43,9 @@
     "prepare:media": "node tools/prepare-reel.mjs",
     "captions:import": "node tools/import-captions.mjs",
     "captions:generate": "node tools/transcribe-reel.mjs",
-    "runtime:ensure": "node tools/ensure-whisper.mjs"
+    "runtime:ensure": "node tools/ensure-whisper.mjs",
+    "qc": "node tools/qc-report.mjs",
+    "provider:fal": "node tools/generate-fal-media.mjs"
   },
   "sideEffects": [
     "*.css"

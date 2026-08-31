@@ -100,7 +100,7 @@ function Install-FfmpegFallback {
   }
 }
 
-Write-Host "=== Reels Factory 2.0: полная установка для Windows ==="
+Write-Host "=== Reels Factory 3.0: полная установка для Windows ==="
 
 if ((Get-NodeMajor) -lt 20) {
   if (Test-CommandAvailable "winget") { Install-WithWinget "OpenJS.NodeJS.22" } else { Install-NodeFallback }
@@ -152,4 +152,4 @@ if ($LASTEXITCODE -ne 0) { throw "Не удалось завершить уст�
 Write-Host ""
 Write-Host "Готово. Скилл: $targetFull"
 Write-Host "Рабочая папка: $ProjectRoot"
-Write-Host "Перезапусти Codex и напиши: Используй `$reels-factory и настрой мою личную фабрику Reels."
+Write-Host "Перезапусти Codex и напиши: `$reels-factory проверь установку и настрой мою фабрику."
