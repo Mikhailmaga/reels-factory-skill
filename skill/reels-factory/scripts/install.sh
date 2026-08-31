@@ -16,6 +16,46 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 CODEX_ROOT="${CODEX_HOME:-$HOME/.codex}"
 PROJECT_ROOT="$HOME/Documents/ReelsFactory"
+BREW_INSTALLER_COMMIT="f4aa1b1ca5b256954dbde0315455fb259cdfc45a"
+BREW_INSTALLER_SHA256="12479A24BE3F5307EECAC7CDE670FAD7118640F031229E964F544B1367B52A41"
+BREW_INSTALLER_URL="https://raw.githubusercontent.com/Homebrew/install/$BREW_INSTALLER_COMMIT/install.sh"
+BREW_TEMP_DIR=""
+BREW_INSTALLER_FILE=""
+
+cleanup_brew_temp() {
+  if [[ -z "$BREW_TEMP_DIR" ]]; then
+    return
+  fi
+  local temp_base="${TMPDIR:-/tmp}"
+  temp_base="${temp_base%/}"
+  case "$BREW_TEMP_DIR" in
+    "$temp_base"/reels-factory-homebrew.*)
+      rm -rf -- "$BREW_TEMP_DIR"
+      ;;
+    *)
+      echo "Отказываюсь удалять непроверенный временный путь: $BREW_TEMP_DIR" >&2
+      ;;
+  esac
+}
+trap cleanup_brew_temp EXIT
+
+download_verified_homebrew_installer() {
+  local temp_base="${TMPDIR:-/tmp}"
+  temp_base="${temp_base%/}"
+  BREW_TEMP_DIR="$(mktemp -d "$temp_base/reels-factory-homebrew.XXXXXX")"
+  BREW_INSTALLER_FILE="$BREW_TEMP_DIR/install.sh"
+  curl --fail --location --proto '=https' --tlsv1.2 \
+    --output "$BREW_INSTALLER_FILE" "$BREW_INSTALLER_URL"
+  local actual
+  actual="$(shasum -a 256 "$BREW_INSTALLER_FILE" | awk '{print toupper($1)}')"
+  if [[ "$actual" != "$BREW_INSTALLER_SHA256" ]]; then
+    echo "Проверка SHA-256 установщика Homebrew не пройдена." >&2
+    echo "Ожидалось: $BREW_INSTALLER_SHA256" >&2
+    echo "Получено: $actual" >&2
+    echo "Файл не будет запущен." >&2
+    exit 1
+  fi
+}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -34,11 +74,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "=== Reels Factory 3.1: полная установка для macOS ==="
+echo "=== Reels Factory 3.1.1: безопасная установка для macOS ==="
 
 if ! command -v brew >/dev/null 2>&1; then
-  echo "Устанавливаю Homebrew официальным установщиком…"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  echo "Скачиваю и проверяю закреплённый официальный установщик Homebrew…"
+  download_verified_homebrew_installer
+  /bin/bash "$BREW_INSTALLER_FILE"
 fi
 
 if [[ -x /opt/homebrew/bin/brew ]]; then

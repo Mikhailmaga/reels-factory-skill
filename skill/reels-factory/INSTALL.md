@@ -1,4 +1,4 @@
-# Установка Reels Factory 3.1
+# Установка Reels Factory 3.1.1
 
 Один установщик ставит скилл и локальный видеокомплект: Node.js 22, FFmpeg/FFprobe, Remotion, браузер для рендера и Whisper.cpp с русской моделью `base`. Исходники и результаты остаются на компьютере; автоматической публикации нет.
 
@@ -12,7 +12,7 @@
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
-Установщик использует Windows Package Manager. Если его нет, Node.js скачивается с официального сайта Node.js, а FFmpeg — из Windows-сборки, на которую ссылается официальный сайт FFmpeg.
+Установщик использует закреплённые версии Node.js и FFmpeg. Windows Package Manager проверяет свои пакеты; резервные загрузки дополнительно сверяются с зафиксированными SHA-256 до установки или распаковки.
 
 ## macOS 15 или новее — Apple Silicon и Intel
 
@@ -24,11 +24,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
 bash ./scripts/install.sh
 ```
 
-Установщик определит архитектуру через Homebrew. На Apple Silicon Homebrew обычно использует `/opt/homebrew`, на Intel — `/usr/local`. Если Homebrew или Command Line Tools отсутствуют, macOS может запросить пароль и подтверждение в Terminal — это штатная системная защита.
+Установщик определит архитектуру через Homebrew. На Apple Silicon Homebrew обычно использует `/opt/homebrew`, на Intel — `/usr/local`. Если Homebrew отсутствует, его официальный установщик сначала скачивается из закреплённого commit и проверяется по SHA-256. Если Homebrew или Command Line Tools отсутствуют, macOS может запросить пароль и подтверждение в Terminal — это штатная системная защита.
 
 ## После установки
 
-Дождись `INSTALLATION_REPORT`, проверь `"status": "ready"`, `"factoryVersion": 3` и `"factoryRelease": "3.1.0"`, перезапусти Codex и напиши:
+Дождись `INSTALLATION_REPORT`, проверь `"status": "ready"`, `"factoryVersion": 3` и `"factoryRelease": "3.1.1"`, перезапусти Codex и напиши:
 
 ```text
 $reels-factory проверь установку и настрой мою фабрику

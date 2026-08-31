@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "name": "reels-factory",
-  "version": "3.1.0",
-  "release_tag": "v3.1.0",
-  "archive_url": "https://github.com/Mikhailmaga/reels-factory-skill/releases/download/v3.1.0/reels-factory-v3.1.0.zip",
-  "sha256": "72ED421BBC3840A0515AA28EB60D0F8157BDE295C7013D457EBC62E7401359AC",
+  "version": "3.1.1",
+  "release_tag": "v3.1.1",
+  "archive_url": "https://github.com/Mikhailmaga/reels-factory-skill/releases/download/v3.1.1/reels-factory-v3.1.1.zip",
+  "sha256": "3A156A63673A0FC1DC856B1766537EC68E0509040B15612610BCF57AB8708CEA",
   "supported_platforms": [
     "windows-x64",
     "windows-arm64",

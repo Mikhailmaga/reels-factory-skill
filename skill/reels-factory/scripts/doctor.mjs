@@ -89,7 +89,7 @@ const ready = required.every((name) => checks[name].ready);
 const report = {
   schemaVersion: 3,
   factoryVersion: 3,
-  factoryRelease: checks.project.version || installedFactoryRelease || "3.1.0",
+  factoryRelease: checks.project.version || installedFactoryRelease || "3.1.1",
   status: ready ? "ready" : "needs_attention",
   checkedAt: new Date().toISOString(),
   platform: process.platform,

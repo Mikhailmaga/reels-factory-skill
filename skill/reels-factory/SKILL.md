@@ -5,7 +5,7 @@ metadata:
   short-description: Codex-first local Reel production with approval gates
 ---
 
-# Reels Factory 3.1
+# Reels Factory 3.1.1
 
 Produce a finished vertical MP4 without guessing the user's brand or spending money before approval. Use local tools and built-in Codex capabilities first. External paid providers are a last-resort adapter, never an automatic fallback.
 
@@ -17,7 +17,7 @@ Never assume a name, brand, offer, CTA, colors, logo, or source path. Never reus
 
 ## Runtime check and commands
 
-The installer must create `<project-root>/INSTALLATION.json` with `status: ready`, `factoryVersion: 3`, and `factoryRelease: 3.1.0`. At the beginning of a setup, production, or diagnostic request, run:
+The installer must create `<project-root>/INSTALLATION.json` with `status: ready`, `factoryVersion: 3`, and `factoryRelease: 3.1.1`. At the beginning of a setup, production, or diagnostic request, run:
 
 ```text
 node scripts/doctor.mjs --project "/absolute/path/ReelsFactory"
