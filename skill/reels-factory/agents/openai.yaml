@@ -1,0 +1,8 @@
+interface:
+  display_name: "Reels Factory"
+  short_description: "Personal brief, branding, edit, and render"
+  brand_color: "#7C3AED"
+  default_prompt: "Use $reels-factory to configure my personal Reel profile, approve a brief, and create a finished vertical video from my footage."
+
+policy:
+  allow_implicit_invocation: true

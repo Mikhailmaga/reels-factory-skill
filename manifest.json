@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "reels-factory",
+  "version": "2.0.0",
+  "release_tag": "v2.0.0",
+  "archive_url": "https://github.com/Mikhailmaga/reels-factory-skill/releases/download/v2.0.0/reels-factory-v2.0.0.zip",
+  "sha256": "BC094AF2AB847CB362476FB05B14A82C01532861312E1B1FE64A36FD64A6DCA3",
+  "supported_platforms": [
+    "windows-x64",
+    "windows-arm64",
+    "macos-apple-silicon",
+    "macos-intel"
+  ],
+  "requires_api_keys": false
+}
